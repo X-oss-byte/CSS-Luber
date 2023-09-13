@@ -171,7 +171,7 @@ const scroll_with_drag = time => {
 }
 </script>
 
-<svelte:body
+<svelte:window
 		on:mousemove={handle_mousemove}
 		on:mouseup={handle_mouseup}
 		on:touchmove={handle_touchmove}

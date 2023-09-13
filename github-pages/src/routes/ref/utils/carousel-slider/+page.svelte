@@ -1,6 +1,5 @@
 <script>
 import CarouselSliderBasicExample from "organs/ref/utils/carousel-slider/CarouselSliderBasicExample.svelte"
-import CarouselSliderCopyExample from "organs/ref/utils/carousel-slider/CarouselSliderCopyExample.svelte"
 import CarouselSliderSnapExample from "organs/ref/utils/carousel-slider/CarouselSliderSnapExample.svelte"
 import { H2, H5 } from "lube-ui"
 import styles from "js/styles.js"
@@ -34,9 +33,6 @@ on_mount(() => header.parentElement?.scroll(0, 0))
 	<article class="m=2_1 @md@m=2">
 		<H5>Basic</H5>
 		<CarouselSliderBasicExample />
-		<div class="h=1"></div>
-		<H5>Copy Childs</H5>
-		<CarouselSliderCopyExample />
 		<div class="h=1"></div>
 		<H5>Snap Buttons</H5>
 		<CarouselSliderSnapExample />

@@ -1,5 +1,5 @@
 <script>
-import { onMount as on_mount } from "svelte"
+import { afterUpdate as after_update } from "svelte"
 
 /** @type {""|"start"|"center"|"end"} */
 export let align = ""
@@ -28,12 +28,12 @@ const now = Date.now
 const record_length = 3
 /** @type {number[]} */
 const time_record = []
-
 /** @type {(callback: FrameRequestCallback) => number} */
 let raf
 /** @type {(handle: number) => void} */
 let caf
-
+/** @type {IntersectionObserver} */
+let observer
 /** @type {HTMLDivElement} */
 let container
 let is_dragging = false
@@ -69,7 +69,9 @@ const handle_mousemove = event => {
 }
 /** @param {TouchEvent} event */
 const handle_touchmove = event => {
-	handle_mousemove(new MouseEvent("mousemove", event.touches[0]))
+	handle_mousemove(
+		new MouseEvent("mousemove", event.touches[0])
+	)
 }
 const handle_mouseup = () => {
 	if (is_dragging) {
@@ -154,9 +156,9 @@ const snapping = (speed, prev, time, move) => {
  * @param {number} direction
  */
 const calculate_snap_move = (inertia, direction) => {
+	if (!observer) return 0
 	const child_elements = /** @type {HTMLElement[]} */ ([...container.children])
-	const length = container.childElementCount
-	if (length == 0) return 0
+	const length = child_elements.length
 	let left = 0
 	if (align === "" || align === "start") {
 		const scroll_left = container.scrollLeft
@@ -215,32 +217,20 @@ const calculate_snap_move = (inertia, direction) => {
 	}
 	return 0
 }
-const copy_childs_full = () => {
+after_update(() => {
+	if (observer || container.childElementCount < 4) return
 	let max_child_width = 0
 	const child_elements = /** @type {HTMLElement[]} */ ([...container.children])
 	for (const child of child_elements) {
 		max_child_width = Math.max(max_child_width, child.offsetWidth)
 	}
 	const safe_width = container.offsetWidth + max_child_width * 3
-	while (container.scrollWidth < safe_width) {
-		for (const child of child_elements) {
-			container.append(
-				child.cloneNode(true)
-			)
-		}
-	}
-}
-on_mount(() => {
+	if (container.clientWidth >= safe_width) return
 	raf = requestAnimationFrame
 	caf = cancelAnimationFrame
-	if (container.childElementCount == 0) return
-	copy_childs_full()
 	let first = container.firstElementChild
 	let last = container.lastElementChild
-	last && first?.before(last)
-	first = container.firstElementChild
-	last = container.lastElementChild
-	const observer = new IntersectionObserver(
+	observer = new IntersectionObserver(
 		entries => {
 			for (const entry of entries) {
 				if (entry.isIntersecting) {
@@ -249,10 +239,10 @@ on_mount(() => {
 					const target = entry.target
 					if (target === first) {
 						last && target.before(last)
-						container.scrollLeft += /** @type {HTMLElement} */ (last)?.offsetWidth
-					} else {
+						container.scrollLeft += /** @type {HTMLElement} */ (last).offsetWidth
+					} else if (target === last) {
 						first && target.after(first)
-						container.scrollLeft -= /** @type {HTMLElement} */ (first)?.offsetWidth
+						container.scrollLeft -= /** @type {HTMLElement} */ (first).offsetWidth
 					}
 					first = container.firstElementChild
 					last = container.lastElementChild
@@ -263,21 +253,13 @@ on_mount(() => {
 		}, {
 			root: container,
 			threshold: 0
-		})
+		}
+	)
 	first && observer.observe(first)
-	last && observer.observe(last)
-	const init_scroll = calculate_snap_move(0, 1)
-	if (init_scroll) {
-		const timer = setInterval(() => {
-			if (container.scrollLeft != (container.scrollLeft += init_scroll)) {
-				clearTimeout(timer)
-			}
-		}, 50)
-	}
 })
 </script>
 
-<svelte:body
+<svelte:window
 		on:mousemove={handle_mousemove}
 		on:mouseup={handle_mouseup}/>
 
