@@ -10,7 +10,6 @@ VSCE: JavaScript and TypeScript Nightly
 		"node": true
 	},
 	"extends": ["eslint:recommended"],
-	"ignorePatterns": ["*.min.js", "history/**/*.js"],
 	"overrides": [{
 		"files": ["*.svelte"],
 		"parser": "svelte-eslint-parser",
