@@ -6,7 +6,7 @@
 		"@typescript-eslint/eslint-plugin": "^6.7.0",
 		"@typescript-eslint/parser": "^6.7.0",
 		"async-lube": "^1.4.1",
-		"axios": "^1.5.0",
+		"axios": "^1.6.0",
 		"d3-scale": "^4.0.2",
 		"eslint": "^8.49.0",
 		"eslint-plugin-lube": "^0.1.4",
